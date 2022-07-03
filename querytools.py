@@ -5,6 +5,16 @@ import os
 import io
 import hashlib
 
+def hash_data(data):
+    BLOCKSIZE = 65536
+    hasher = hashlib.md5()
+    buffer = io.BytesIO(data)
+    buf = buffer.read(BLOCKSIZE)
+    while len(buf) > 0:
+        hasher.update(buf)
+        buf = buffer.read(BLOCKSIZE)
+    return hasher.hexdigest()
+
 class QueryDatabase:
     def __init__(self, dbfile="queries.db", datastore="db_datastore"):
         self.dbfile = dbfile
@@ -17,14 +27,7 @@ class QueryDatabase:
         hasher = hashlib.md5()
     
     def hash_data(self, data):
-        BLOCKSIZE = 65536
-        hasher = hashlib.md5()
-        buffer = io.BytesIO(data)
-        buf = buffer.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = buffer.read(BLOCKSIZE)
-        return hasher.hexdigest()
+        return hash_data(data)
     
     def __hash_path(self, fhash):
         bucket = fhash[0:4]
@@ -102,6 +105,7 @@ class QueryDocument:
         self.url = url
         self.da = da
         self.parent_doc = None
+        self.myhash = None
         
     def query(self, prompt):
         self.da = Document(text=prompt).post(self.url, parameters={'num_images':8}).matches
@@ -159,6 +163,13 @@ class QueryDocument:
             
         tda.save_uri_to_file(outfile)
         
+    def get_hash(self):
+        if self.myhash is None:
+            #Cache the hash for later calls -- once the document is generated the data should never change so the hash should never change
+            qdbytes = self.da.to_bytes()
+            self.myhash = hash_data(qdbytes)
+        return self.myhash
+        
         
         
 class QueryDocNode:
@@ -186,6 +197,15 @@ class QueryDocNode:
         
     def has_children(self):
         return len(self.children) > 0
+    
+    def get_all_child_hashes(self):
+        all_hashes = []
+        for cc in self.children:
+            all_hashes.append(cc.doc.get_hash())
+            sub_hashes = cc.get_all_child_hashes()
+            all_hashes.extend(sub_hashes)
+            
+        return all_hashes
 
 class QuerySession:  
     
@@ -273,6 +293,42 @@ class QuerySession:
         newS.stack_idx = self.stack_idx
         newS.prev_stack_idx = self.prev_stack_idx
         return newS
+    
+    def prune_current_document(self):
+        if self.cur_doc.doc.get_hash() == self.document_stack[0].doc.get_hash():
+            print("Warning -- you are attempting to prune the root node in the graph, this will erase the entire graph -- if this is what you intend to do call reset_graph() instead")
+            return
+        parentNode = self.cur_doc.parent
+        
+        all_hashes_to_remove = self.cur_doc.get_all_child_hashes()
+        all_hashes_to_remove.append(self.cur_doc.doc.get_hash())
+        
+        newChildren = []
+        for cc in parentNode.children:
+            if cc.doc.get_hash() == self.cur_doc.doc.get_hash():
+                continue
+            else:
+                newChildren.append(cc)
+        parentNode.children = newChildren
+              
+        # Remove the pruned node and all its children from the document_stack
+        newDocStack = []
+        for doc in self.document_stack:
+            if doc.doc.get_hash() in all_hashes_to_remove:
+                continue
+            else:
+                newDocStack.append(doc)
+                
+        self.document_stack = newDocStack
+        
+        print(f"Pruned {self.cur_doc.doc.get_text()}")
+        print(f"Pruned a total of {len(all_hashes_to_remove)} documents from the graph and stack")
+        self.cur_doc = parentNode
+        print(f"Active Document: {self.cur_doc.doc.get_text()}")        
+        
+    def reset_graph(self):
+        self.cur_doc = None
+        self.document_stack = []
         
     def show(self):
         print(self.cur_doc.doc.get_text())
@@ -284,6 +340,8 @@ class QuerySession:
             self.cur_doc = self.cur_doc.parent
         else:
             print("no parent document available -- staying where we are")
+            return
+        
         print(f"Active Document: {self.cur_doc.doc.get_text()}")
             
         #TODO: Set the stack_idx and prev_stack_idx correctly when doing this up operation
@@ -344,6 +402,9 @@ class QuerySession:
             
         self.cur_doc = self.document_stack[idx]
         print(f"Active Document: {self.cur_doc.doc.get_text()}")
+        
+    def goto_root(self):
+        self.set_stack_position(0)
         
     def show_stack(self):
         for i in range(len(self.document_stack)):
