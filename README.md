@@ -34,7 +34,7 @@ qdb.show_queries()
 we see that there is a stored session with the query `a photo of a happy puppy` in the database at index 0, to rebuild the document for this we just need to pass the hash to the `rebuild_doc` function
 ```python
 #If the dalle-flow-endpoint variable is not specified it will use the default which is grpc://10.10.28.110:51005 -- you can set the default in the querytools.py file
-rqd = qdb.rebuild_doc(qdb.get_hash_from_list(3),dalle_flow_endpoint="grpc://10.10.28.110:51005")
+rqd = qdb.rebuild_doc(qdb.get_hash_from_list(0),dalle_flow_endpoint="grpc://10.10.28.110:51005")
 ```
 
 now `rqd` will be the same QueryDocument object as before, and you can continue to operate on the session as normal
@@ -46,6 +46,11 @@ if you run the `show_tiles` function you will get a plot of all the current imag
 ## Diffusing
 There is a function `diffuse` which takes as its arguments `skip_rate` and `idx` (idx is optional, and defaults to 0). This will run a diffusion on the image at index `idx` within the current document and return a new QueryDocument that contains the session information for the diffusion operation. It will also append the line `diffusion idx[#] sr[skip_rate]` to the text entry of each item in the document so that if you save it to the database you will see an extended version of the original query to make it easier to differentate it from the original doc.
 
+# Upscale
+There is an `upscale` function that takes the index from the output of `show_tiles` and runs it through the upscaling endpoint. It returns a new QueryDocument that contains the upscaled image only.
+
+# Save Image
+There is a `save_image` function that can be used to write the URI data in the document to an image file.
 
 # TODO 
 Many things to do probably -- but the most immediate one would be adding simple CRUD like operations -- in particular removing entries that we no longer want. 
