@@ -72,6 +72,8 @@ class QueryDatabase:
 
         self.conn.commit()
         
+        print("Database is ready")
+        
     def save_qd(self, querydoc):
         if isinstance(querydoc.da, MatchArray):
             keystr = querydoc.da[0].text
