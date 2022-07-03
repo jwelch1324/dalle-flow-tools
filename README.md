@@ -13,7 +13,12 @@ qdb.initdb()
 
 This is to create the main table in the database
 
-# Saving / Restoring a query document
+# QuerySession
+For usage see the [Example Session](ExampleSession/README.md)
+
+
+# QueryDocument
+## Saving / Restoring a query document
 Lets say you have a query document that you want to save for later -- you can easily save it to the database using the `save_qd` function
 ```python
 qd = QueryDocument()
@@ -35,10 +40,10 @@ rqd = qdb.rebuild_doc(qdb.get_hash_from_list(3),dalle_flow_endpoint="grpc://10.1
 now `rqd` will be the same QueryDocument object as before, and you can continue to operate on the session as normal
 
 
-# Show Tiles
+## Show Tiles
 if you run the `show_tiles` function you will get a plot of all the current images with their index in the current query doc.
 
-# Diffusing
+## Diffusing
 There is a function `diffuse` which takes as its arguments `skip_rate` and `idx` (idx is optional, and defaults to 0). This will run a diffusion on the image at index `idx` within the current document and return a new QueryDocument that contains the session information for the diffusion operation. It will also append the line `diffusion idx[#] sr[skip_rate]` to the text entry of each item in the document so that if you save it to the database you will see an extended version of the original query to make it easier to differentate it from the original doc.
 
 
