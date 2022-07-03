@@ -54,10 +54,23 @@ class QueryDatabase:
                 os.makedirs(os.path.join(self.datastore_path, bucket))
         
     def initdb(self):
-        self.conn.execute('''CREATE TABLE QUERIES (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        INQUERY TEXT NOT NULL,
-        FILEHASH TEXT NOT NULL);''')
+        try:
+            self.conn.execute('''CREATE TABLE QUERIES (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            INQUERY TEXT NOT NULL,
+            FILEHASH TEXT NOT NULL);''')
+        except:
+            pass
+        
+        try:
+            self.conn.execute('''CREATE TABLE SESSIONS (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            SESSIONNAME TEXT NOT NULL,
+            FILEHASH TEXT NOT NULL);''')
+        except:
+            pass
+
+        self.conn.commit()
         
     def save_qd(self, querydoc):
         if isinstance(querydoc.da, MatchArray):
@@ -72,6 +85,45 @@ class QueryDatabase:
         
         with open(self.__hash_path(qdhash),"wb") as ofile:
             ofile.write(qdbytes)
+            
+    def save_session(self, session_name, qs):
+        if not isinstance(qs,QuerySession):
+            raise TypeError("cannot save something that isn't a QuerySession Object")
+        
+        if self.__get_session_hash(session_name) is not None:
+            raise ValueError("session name must be unique in the database")
+        
+        all_bytes = qs.to_bytes()
+        sHash = self.hash_data(all_bytes)
+        self.conn.execute(f"INSERT INTO SESSIONS (SESSIONNAME, FILEHASH) VALUES(\"{session_name}\",\"{sHash}\")")
+        self.conn.commit()
+        
+        with open(self.__hash_path(sHash),"wb") as ofile:
+            ofile.write(all_bytes)
+            
+    def load_session(self, session_name):
+        shash = self.__get_session_hash(session_name)
+        if shash is None:
+            raise ValueError(f"session name [{session_name}] does not exist in the database")
+        
+        with open(self.get_file_path(shash),"rb") as infile:
+            data = infile.read()
+        
+        newS = QuerySession(self)
+        newS.from_bytes(data)
+        return newS
+        
+        
+    def __get_session_hash(self, session_name):
+        hashlist = self.conn.execute(f"SELECT * FROM SESSIONS WHERE SESSIONNAME = \"{session_name}\"").fetchall()
+        if len(hashlist) == 0:
+            return None
+        else:
+            return hashlist[0][2]
+    def show_sessions(self):
+        sessions = self.conn.execute(f"SELECT * FROM SESSIONS").fetchall()
+        for s in sessions:
+            print(f"{s[0]}:\t{s[1]}")
         
     def show_queries(self):
         self.lastcur = self.conn.execute(f"SELECT * FROM QUERIES")
@@ -437,3 +489,46 @@ class QuerySession:
         
         print_children(root_node,0)
          
+            
+    def to_bytes(self):
+        import pickle
+        # The idea here is we will pickle the root_node into bytes and save the current stack as a map of index to hash
+        rootBytes = pickle.dumps(self.document_stack[0])
+        
+        docStackMap = {}
+        
+        for i in range(len(self.document_stack)):
+            docStackMap[i] = self.document_stack[i].doc.get_hash()
+            
+        all_data = {
+            'rootBytes':rootBytes,
+            'stackMap':docStackMap,
+        }
+        allBytes = pickle.dumps(all_data)
+        return allBytes
+        
+    def from_bytes(self, allBytes):
+        import pickle
+        
+        def find_matching_doc(docHash, rdoc):
+            if rdoc.doc.get_hash() == docHash:
+                print(f"Found Matching doc for hash {docHash}")
+                return rdoc
+            for cc in rdoc.children:
+                zz = find_matching_doc(docHash, cc)
+                if zz is None:
+                    continue
+                return zz
+            
+            print(f"Didn't find the doc with hash {docHash}")
+            return None
+        
+        all_data = pickle.loads(allBytes)
+        rootBytes = all_data['rootBytes']
+        dockStackMap = all_data['stackMap']
+        
+        self.cur_doc = pickle.loads(rootBytes)
+        print(dockStackMap)
+        
+        for i in range(len(dockStackMap)):
+            self.document_stack.append(find_matching_doc(dockStackMap[i], self.cur_doc))
