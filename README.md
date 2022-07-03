@@ -15,7 +15,7 @@ This is to create the main table in the database
 
 # QuerySession
 For usage see the [Example Session](ExampleSession/README.md)
-
+It is recommended to use the query session rather than the raw query documents if you want to track your workflow.
 
 # QueryDocument
 ## Saving / Restoring a query document
