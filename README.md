@@ -1,9 +1,6 @@
 # dalle-flow-tools
 Set of tools that allow you to save and recall the results of dalle-flow sessions so that you can come back and explore a given session further.
 
-# The data store and database
-The querytools introduce two classes the QueryDocument() and QueryDatabase() -- the former is a wrapper around the dalle-flow docarray interface, and the latter is a simple SQLLite wrapper that manages storing session data. Additionally when the database is first instantiated it will create a datastore cache, which is an organized set of folders corresponding to the first four hex characters of an md5 hash. When a query document is saved to the database, it is converted to raw bytes, hashed, and then saved to the appropriate bucket in the datastore.
-
 # First use of the Database
 When you first create a database you need to run the `initdb` function as follows
 ```python
@@ -16,6 +13,9 @@ This is to create the main table in the database
 # QuerySession
 For usage see the [Example Session](ExampleSession/README.md)
 It is recommended to use the query session rather than the raw query documents if you want to track your workflow.
+
+# The data store and database
+The querytools introduce two classes the QueryDocument() and QueryDatabase() -- the former is a wrapper around the dalle-flow docarray interface, and the latter is a simple SQLLite wrapper that manages storing session data. Additionally when the database is first instantiated it will create a datastore cache, which is an organized set of folders corresponding to the first four hex characters of an md5 hash. When a query document is saved to the database, it is converted to raw bytes, hashed, and then saved to the appropriate bucket in the datastore.
 
 # QueryDocument
 ## Saving / Restoring a query document
