@@ -1,2 +1,4 @@
 db_datastore/
 queries.db
+.ipynb_checkpoints/
+__pycache__/
