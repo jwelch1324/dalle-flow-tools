@@ -4,6 +4,12 @@ import sqlite3
 import os
 import io
 import hashlib
+import tempfile
+import PIL.Image
+import re
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 def hash_data(data):
     BLOCKSIZE = 65536
@@ -100,9 +106,27 @@ class QueryDatabase:
         self.conn.execute(f"INSERT INTO SESSIONS (SESSIONNAME, FILEHASH) VALUES(\"{session_name}\",\"{sHash}\")")
         self.conn.commit()
         
+        print(f"Session {session_name} saved to database")
+        
         with open(self.__hash_path(sHash),"wb") as ofile:
             ofile.write(all_bytes)
             
+    def replace_session(self, session_name, newQS):
+        shash = self.__get_session_hash(session_name)
+        if shash is not None:
+            self.remove_session(session_name)
+            
+        self.save_session(session_name,newQS)
+
+    def remove_session(self,session_name):
+        shash = self.__get_session_hash(session_name)
+        if shash is None:
+            print(f"No Session with the name {session_name} exists in the database")
+            return
+        self.conn.execute(f"DELETE FROM SESSIONS WHERE FILEHASH = \"{shash}\"")
+        self.conn.commit()
+        print(f"Session {session_name} removed from database")
+        
     def load_session(self, session_name):
         shash = self.__get_session_hash(session_name)
         if shash is None:
@@ -110,7 +134,7 @@ class QueryDatabase:
         
         with open(self.get_file_path(shash),"rb") as infile:
             data = infile.read()
-        
+        list
         newS = QuerySession(self)
         newS.from_bytes(data)
         return newS
@@ -190,7 +214,7 @@ class QueryDocument:
             x.text = x.text + f" -- diffuse item[{idx}] sr[{skip_rate}]"
         
         newda = self.da[idx].post(f'{self.url}/upscale')
-        newda.text = newda.text + f" -- upscale"
+        newda.text = newda.text + f" -- upscale item[{idx}]"
         #newda.display()
         return QueryDocument(self.url,newda)
     
@@ -235,7 +259,7 @@ class QueryDocNode:
 
     def list_children(self):
         if self.active_child is not None:
-            print(f"Active Child: {self.cur_doc.doc.get_text()}")
+            print(f"Active Child: {self.doc.get_text()}")
 
         for i in range(len(self.children)):
             c = self.children[i]
@@ -338,6 +362,29 @@ class QuerySession:
         else:
             self.cur_doc = QueryDocNode(doc,None,[])
         self.document_stack = [self.cur_doc]
+        
+        
+    def display_path(self):
+        self.__check_valid_doc()
+        stt = self.cur_doc.doc.get_text()
+        idxs = list(map(lambda x: x.split('item')[1].strip('[').strip(']'), re.findall(r"item\[[0-9]*\]",stt)))
+        idxs.reverse()
+        with tempfile.TemporaryDirectory() as tdir:
+            ofilepath = os.path.join(tdir,'tmp.png')
+            parent = self.cur_doc.parent
+            imgs = []
+            for ii in idxs:
+                parent.doc.da[int(ii)].save_uri_to_file(ofilepath)
+                pp = PIL.Image.open(ofilepath)
+                imgs.append(np.array(pp))
+                parent = parent.parent
+            imgs.reverse()
+
+        fig, ax = plt.subplots(1,len(imgs),figsize=(40,40))
+        for i in range(len(imgs)):
+            ax[i].imshow(imgs[i])
+            ax[i].set_axis_off()
+        plt.show()
     
     def fork(self):
         newS = QuerySession(self.qdb,self.dalle_url)
