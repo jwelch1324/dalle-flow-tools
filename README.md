@@ -6,7 +6,7 @@ Set of tools that allow you to save and recall the results of dalle-flow session
 Eventually this will be pushed to a pip repository, for now clone this repository and install into your pip environment
 ```bash
 > git clone https://github.com/jwelch1324/dalle-flow-tools.git
-> pip install dalle-flow-tools.git/
+> pip install dalle-flow-tools/
 ```
 
 # Getting Started
