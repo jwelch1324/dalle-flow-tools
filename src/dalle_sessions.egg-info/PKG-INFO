@@ -1,16 +1,12 @@
+Metadata-Version: 2.1
+Name: dalle-sessions
+Version: 0.0.1
+Summary: UNKNOWN
+License: UNKNOWN
+Platform: UNKNOWN
+
 # dalle-flow-tools
 Set of tools that allow you to save and recall the results of dalle-flow sessions so that you can come back and explore a given session further.
-
-
-# Installation
-Eventually this will be pushed to a pip repository, for now clone this repository and install into your pip environment
-```bash
-> git clone https://github.com/jwelch1324/dalle-flow-tools.git
-> pip install dalle-flow-tools.git/
-```
-
-# Getting Started
-The documentation below is outdated and will be removed in the future -- see [Getting Started](ExampleSession/GettingStarted.md) instead.
 
 # First use of the Database
 When you first create a database you need to run the `initdb` function as follows
@@ -65,6 +61,8 @@ There is a `save_image` function that can be used to write the URI data in the d
 
 # TODO 
 Many things to do probably -- but the most immediate one would be adding simple CRUD like operations -- in particular removing entries that we no longer want. 
+
+
 
 
 

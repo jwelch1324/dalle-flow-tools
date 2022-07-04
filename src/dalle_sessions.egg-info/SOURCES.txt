@@ -1,0 +1,7 @@
+README.md
+setup.py
+src/dalle_sessions.egg-info/PKG-INFO
+src/dalle_sessions.egg-info/SOURCES.txt
+src/dalle_sessions.egg-info/dependency_links.txt
+src/dalle_sessions.egg-info/requires.txt
+src/dalle_sessions.egg-info/top_level.txt

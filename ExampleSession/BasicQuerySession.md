@@ -85,6 +85,12 @@ s.set_stack_position(0)
 Active Document: a visionary colored pencil drawing of a kitten going super saiyan
 
 ```python
+#We can also go to the root with the goto_root function
+s.goto_root()
+```
+Active Document: a visionary colored pencil drawing of a kitten going super saiyan
+
+```python
 # Notice that we are told what the new active document is
 # Now lets display what the active node contains
 s.show()
