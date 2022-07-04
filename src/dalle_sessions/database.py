@@ -85,7 +85,6 @@ class QueryDatabase:
             ofile.write(qdbytes)
             
     def save_session(self, session_name, qs):
-        
         if self.__get_session_hash(session_name) is not None:
             raise ValueError("session name must be unique in the database")
         

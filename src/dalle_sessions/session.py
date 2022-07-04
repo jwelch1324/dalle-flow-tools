@@ -312,7 +312,8 @@ class QuerySession:
         
         for i in range(len(self.document_stack)):
             docStackMap[i] = self.document_stack[i].doc.get_hash()
-            
+        
+        
         all_data = {
             'rootBytes':rootBytes,
             'stackMap':docStackMap,
@@ -325,23 +326,28 @@ class QuerySession:
         
         def find_matching_doc(docHash, rdoc):
             if rdoc.doc.get_hash() == docHash:
-                print(f"Found Matching doc for hash {docHash}")
+                #print(f"Found Matching doc for hash {docHash}")
                 return rdoc
             for cc in rdoc.children:
                 zz = find_matching_doc(docHash, cc)
                 if zz is None:
                     continue
                 return zz
-            
-            print(f"Didn't find the doc with hash {docHash}")
             return None
         
         all_data = pickle.loads(allBytes)
         rootBytes = all_data['rootBytes']
         dockStackMap = all_data['stackMap']
-        
+        loadErrors = False
         self.cur_doc = pickle.loads(rootBytes)
-        print(dockStackMap)
-        
         for i in range(len(dockStackMap)):
-            self.document_stack.append(find_matching_doc(dockStackMap[i], self.cur_doc))
+            docPtr = find_matching_doc(dockStackMap[i], self.cur_doc)
+            if docPtr is None:
+                print(f"Could not find document with hash {docStackMap[i]}")
+                loadErrors = True
+            else:
+                self.document_stack.append(docPtr)
+        if loadErrors:
+            print("Load finished with errors -- some documents may fail to render correctly")
+        else:
+            print("Load finished without errors")

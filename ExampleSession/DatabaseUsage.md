@@ -53,10 +53,7 @@ qdb.show_sessions()
 newS = qdb.load_session('adorable_kitten')
 ```
 
-    {0: 'db17dfa85e6a7d4fde54e75ada41513a', 1: 'aeb8e81a3e2900dba6602db9f3c3fd15', 2: 'f481696c0a562a2d3f98a1a2723f6312'}
-    Found Matching doc for hash db17dfa85e6a7d4fde54e75ada41513a
-    Found Matching doc for hash aeb8e81a3e2900dba6602db9f3c3fd15
-    Found Matching doc for hash f481696c0a562a2d3f98a1a2723f6312
+    Load finished without errors
 
 
-What is shown here is the output of the deserializer searching for subdocuments in the graph and indicating if they were found or not. Now `newS` contains the entire graph that was saved eariler, and you can continue to experiment and explore the query space.
+The load here completed without errors -- if any documents were not found their hash will be shown. Now `newS` contains the entire graph that was saved eariler, and you can continue to experiment and explore the query space.
