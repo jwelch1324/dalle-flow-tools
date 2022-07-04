@@ -1,7 +1,7 @@
 # Query Database Usage
 
 ## Database Initialization
-The first time you with to use the database you need to initialize it
+The first time you use the database you need to initialize it
 ```python
 from dalle_sessions.database import QueryDatabase
 qdb = QueryDatabase()
