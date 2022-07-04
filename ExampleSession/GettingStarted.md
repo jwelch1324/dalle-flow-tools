@@ -1,4 +1,4 @@
 # Getting Started
 
-1. [Setting up Database](DatabaseUsage.md)
+1. [Working with the Database](DatabaseUsage.md)
 2. [Basic Query Session](BasicQuerySession.md)
