@@ -1,5 +1,5 @@
 # dalle-flow-tools
-Set of tools that allow you to save and recall the results of dalle-flow sessions so that you can come back and explore a given session further.
+Set of tools that allow you to save and recall the results of dalle-flow sessions so that you can come back and explore a given session further. To use these tools you need a dalle-flow endpoint. For instructions on setting up your own endpoint see [Dalle-Flow](https://github.com/jina-ai/dalle-flow). You can also use the public endpoint they have setup, but the response time is quite slow at times. 
 
 
 # Installation
