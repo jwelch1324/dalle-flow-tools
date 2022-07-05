@@ -65,7 +65,13 @@ class QueryDocument:
             self.da.plot_image_sprites(fig_size=(15,15),show_index=True)
         else:
             self.da.display()
-        
+    
+    def save_grid(self, outfile):
+        if not isinstance(self.da, MatchArray):
+            self.save_image(outfile)
+        else:
+            self.da.plot_image_sprites(outfile)
+    
     def save_image(self, outfile, idx=0):
         if isinstance(self.da, MatchArray):
             tda = self.da[idx]

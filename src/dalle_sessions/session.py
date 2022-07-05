@@ -301,8 +301,65 @@ class QuerySession:
                 print_children(nn,tab_n+1)
         
         print_children(root_node,0)
+        
+    def plot_graph(self):
+        from diagrams import Diagram, Cluster
+        from diagrams.custom import Custom
+        import tempfile as tf
+        
+        with tf.TemporaryDirectory() as tdir:
+            root_node = self.document_stack[0]
+            root_node.doc.save_grid(os.path.join(tdir,"root.png"))
+            with Diagram("Query Stack", show=False, filename="fullgraph", direction="TB"):
+                cc_root = Custom("root", os.path.join(tdir,"root.png"))
+
+                #Now we need to iterate down through the graph creating images for each node
+                def render_children(dn):
+                    renders = []
+                    for cc in dn.children:
+                        fpath = os.path.join(tdir,cc.doc.get_hash()+".png")
+                        cc.doc.save_grid(fpath)
+                        renders.append(fpath)
+                        crenders = render_children(cc) 
+                        renders.append(crenders)
+                    return renders
+                
+                rr = render_children(root_node)
+                
+                def connect_nodes(cctop, paths):
+                    ##cctop is a diagram node for the top node of this level
+                    # all non list objects connect directly to this node, all lists are subgraphs
+                    ii = 0
+                    while ii < len(paths):
+                        tt = paths[ii]
+                        ttc = paths[ii+1]
+                        fhash, _ = os.path.splitext(os.path.basename(tt))
+                        cc_z = Custom(str(self.__hash_pos_in_stack(fhash)),tt)
+                        cctop >> cc_z
+                        if len(ttc) > 0:
+                            connect_nodes(cc_z,ttc)
+                        ii += 2
+                        
+                connect_nodes(cc_root,rr)
+#                 cc_grid = Custom("Grid", "./resources/grid0.png")
+#                 cc_grid1 = Custom("Grid1", "./resources/grid0.png")
+#                 cc_sample = Custom("Sample","./resources/sample0.png")
+#                 cc_sample1 = Custom("Sampl1e","./resources/sample0.png")
+#                 cc_sample2 = Custom("Sample2","./resources/sample0.png")
+#                 cc_sample3 = Custom("Sample3","./resources/sample0.png")
+
+#                 cc_grid1 >> cc_sample1
+#                 cc_grid1 >> cc_sample2
+#                 cc_grid1 >> cc_sample3
+#                 cc_grid >> cc_sample
+#                 cc_grid >> cc_grid1
          
-            
+    def __hash_pos_in_stack(self, phash):
+        for i in range(len(self.document_stack)):
+            if self.document_stack[i].doc.get_hash() == phash:
+                return i
+        return -1
+    
     def to_bytes(self):
         import pickle
         # The idea here is we will pickle the root_node into bytes and save the current stack as a map of index to hash
