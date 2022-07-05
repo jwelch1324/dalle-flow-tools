@@ -7,14 +7,15 @@ The library can generate the following graphs for a session and you can move bet
 
 ![png](fullgraph.png)
 
+
+There is also a simple SQLite database wrapper under the hood that lets you save sessions so you can come back to them later and continue your explorations.
+
 # Installation
 Eventually this will be pushed to a pip repository, for now clone this repository and install into your pip environment
 ```bash
 > git clone https://github.com/jwelch1324/dalle-flow-tools.git
 > pip install dalle-flow-tools/
 ```
-
-There is also a simple SQLite database wrapper under the hood that lets you save sessions so you can come back to them later and continue your explorations.
 
 # Getting Started
 The documentation below is outdated and will be removed in the future -- see [Getting Started](ExampleSession/GettingStarted.md) instead.
