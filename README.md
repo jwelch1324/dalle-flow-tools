@@ -1,7 +1,9 @@
 # dalle-flow-tools
 Set of tools that allow you to save and recall the results of dalle-flow sessions so that you can come back and explore a given session further. To use these tools you need a dalle-flow endpoint. For instructions on setting up your own endpoint see [Dalle-Flow](https://github.com/jina-ai/dalle-flow). You can also use the public endpoint they have setup, but the response time is faster if you setup your own endpoint.
 
-Using these tools you can keep track of the graph of operations that you take while exploring the query space starting from the root query. The library can generate the following graphs for a session and you can move between different frames to run diffuse and upscale operations at will. There is also a simple SQLite database wrapper under the hood that lets you save sessions so you can come back to them later and continue your explorations.
+Using these tools you can keep track of the graph of operations that you take while exploring the query space starting from the root query. 
+
+The library can generate the following graphs for a session and you can move between different frames to run diffuse and upscale operations at will.
 
 ![png](fullgraph.png)
 
@@ -11,6 +13,8 @@ Eventually this will be pushed to a pip repository, for now clone this repositor
 > git clone https://github.com/jwelch1324/dalle-flow-tools.git
 > pip install dalle-flow-tools/
 ```
+
+There is also a simple SQLite database wrapper under the hood that lets you save sessions so you can come back to them later and continue your explorations.
 
 # Getting Started
 The documentation below is outdated and will be removed in the future -- see [Getting Started](ExampleSession/GettingStarted.md) instead.
