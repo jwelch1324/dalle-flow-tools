@@ -310,7 +310,7 @@ class QuerySession:
         with tf.TemporaryDirectory() as tdir:
             root_node = self.document_stack[0]
             root_node.doc.save_grid(os.path.join(tdir,"root.png"))
-            with Diagram("Query Stack", show=False, filename="fullgraph", direction="TB"):
+            with Diagram("Query: "+root_node.doc.get_text(), show=False, filename="fullgraph", direction="TB"):
                 cc_root = Custom("root", os.path.join(tdir,"root.png"))
 
                 #Now we need to iterate down through the graph creating images for each node
